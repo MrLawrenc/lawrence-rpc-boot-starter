@@ -86,7 +86,9 @@ hs_err_pid*
 /target/
 *.lst
 */target/*
-
+.gradle
+build
+gradle
 target/*
 */*/target
 ### Maven template
