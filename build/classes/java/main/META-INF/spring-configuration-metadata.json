@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "name": "lawrence",
+      "type": "com.github.lawrence.config.ProviderConfig",
+      "sourceType": "com.github.lawrence.config.ProviderConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "lawrence.registry-ip",
+      "type": "java.lang.String",
+      "description": "注册中心信息",
+      "sourceType": "com.github.lawrence.config.ProviderConfig"
+    },
+    {
+      "name": "lawrence.registry-port",
+      "type": "java.lang.String",
+      "sourceType": "com.github.lawrence.config.ProviderConfig"
+    },
+    {
+      "name": "lawrence.service-ip",
+      "type": "java.lang.String",
+      "description": "默认服务地址信息",
+      "sourceType": "com.github.lawrence.config.ProviderConfig"
+    },
+    {
+      "name": "lawrence.service-port",
+      "type": "java.lang.Integer",
+      "sourceType": "com.github.lawrence.config.ProviderConfig",
+      "defaultValue": 0
+    }
+  ],
+  "hints": []
+}

@@ -1,0 +1,48 @@
+plugins {
+    id 'groovy'
+    id 'java'
+    id 'maven'
+    id 'org.springframework.boot' version '2.3.0.RELEASE'
+}
+
+group 'com.github.lawrence'
+version '1.0-SNAPSHOT'
+
+apply from: 'version.gradle'
+repositories {
+    //先从本地仓库找 可以配置环境变量GRADLE_USER_HOME 配置为本地仓库地址  或者指向maven本地仓库即可
+    mavenLocal()
+    maven {
+        url 'https://maven.aliyun.com/nexus/content/groups/public/'
+    }
+    mavenCentral()
+}
+
+
+dependencies {
+
+    implementation 'org.codehaus.groovy:groovy-all:3.0.5'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    implementation rootProject.ext.dependence.nacos_client
+    implementation rootProject.ext.dependence.log4j
+    implementation rootProject.ext.dependence.slf4j_api
+    implementation rootProject.ext.dependence.logback
+    implementation rootProject.ext.dependence.fastjson
+    implementation rootProject.ext.dependence.io_netty
+
+    annotationProcessor rootProject.ext.dependence.lombok
+    compileOnly rootProject.ext.dependence.lombok
+    testAnnotationProcessor rootProject.ext.dependence.lombok
+    testCompileOnly rootProject.ext.dependence.lombok
+
+    implementation 'org.springframework.boot:spring-boot-starter:2.3.0.RELEASE'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:2.3.0.RELEASE"
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,15 @@
+def versions = [:]
+versions.nacos = "2.0.2"
+def nacos_client = '1.3.2'
+ext {
+    constraintlayout = "1.1.3"
+    dependence = [
+            nacos_client: "com.alibaba.nacos:nacos-client:${nacos_client}",
+            slf4j_api   : "org.slf4j:slf4j-api:1.7.31",
+            log4j       : "log4j:log4j:1.2.17",
+            logback     : "ch.qos.logback:logback-classic:1.1.11",
+            fastjson    : "com.alibaba:fastjson:1.2.68",
+            lombok      : "org.projectlombok:lombok:1.18.12",
+            io_netty      : "io.netty:netty-all:4.1.42.Final"
+    ]
+}
