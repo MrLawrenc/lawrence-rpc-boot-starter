@@ -15,11 +15,11 @@ import java.util.Objects;
  * @author : Lawrence
  * date  2021/7/11 17:02
  */
-public class RpcStartRegistry implements ApplicationListener<ContextRefreshedEvent> {
-    private final ProviderConfig providerConfig;
+public class StartRegistryRpcService implements ApplicationListener<ContextRefreshedEvent> {
+    private final RpcConfig rpcConfig;
 
-    public RpcStartRegistry(ProviderConfig providerConfig) {
-        this.providerConfig = providerConfig;
+    public StartRegistryRpcService(RpcConfig rpcConfig) {
+        this.rpcConfig = rpcConfig;
     }
 
     @SneakyThrows
@@ -27,9 +27,9 @@ public class RpcStartRegistry implements ApplicationListener<ContextRefreshedEve
     public void onApplicationEvent(ContextRefreshedEvent event) {
         //避免因多个重启重复执行 只处理顶层容器
         if (Objects.isNull(event.getApplicationContext().getParent())) {
-            NamingService naming = NamingFactory.createNamingService(providerConfig.getRegistryIp() + ":" + providerConfig.getRegistryPort());
+            NamingService naming = NamingFactory.createNamingService(rpcConfig.getRegistryIp() + ":" + rpcConfig.getRegistryPort());
             for (String serviceName : CacheUtil.serviceNames()) {
-                naming.registerInstance(serviceName, providerConfig.getServiceIp(), providerConfig.getServicePort(), "TEST1");
+                naming.registerInstance(serviceName, rpcConfig.getServiceIp(), rpcConfig.getServicePort(), "TEST1");
             }
         }
     }

@@ -5,6 +5,8 @@ import com.alibaba.nacos.api.naming.listener.Event;
 import com.alibaba.nacos.api.naming.listener.EventListener;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.github.lawrence.config.Beans;
+import com.github.lawrence.config.RpcConfig;
 
 import java.util.List;
 import java.util.Properties;
@@ -52,7 +54,8 @@ public class NacosUtil {
     }
 
     public List<Instance> services(String serviceName) throws NacosException {
-        NamingService naming = NamingFactory.createNamingService("");
+        RpcConfig config = Beans.getBean(RpcConfig.class);
+        NamingService naming = NamingFactory.createNamingService(config.getRegistryIp() + ":" + config.getRegistryPort());
         return naming.getAllInstances(serviceName);
     }
 }

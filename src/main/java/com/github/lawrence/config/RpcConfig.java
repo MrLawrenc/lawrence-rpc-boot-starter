@@ -1,25 +1,24 @@
 package com.github.lawrence.config;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author : Lawrence
- * date  2021/7/11 21:37
+ * date  2021/7/11 16:56
  */
-@Configuration
-@EnableConfigurationProperties(ProviderConfig.class)
+@ConfigurationProperties(prefix = "lawrence")
+@Data
 public class RpcConfig {
+    /**
+     * 注册中心信息
+     */
+    private String registryIp = "172.27.35.10";
+    private String registryPort = "8850";
 
-    @Bean
-    public RpcProcessor rpcProcessor() {
-        return new RpcProcessor();
-    }
-
-    @Bean
-    public RpcStartRegistry rpcStartRegistry(ProviderConfig providerConfig) {
-        return new RpcStartRegistry(providerConfig);
-    }
-
+    /**
+     * 默认服务地址信息
+     */
+    private String serviceIp = "172.27.35.10";
+    private int servicePort = 8850;
 }

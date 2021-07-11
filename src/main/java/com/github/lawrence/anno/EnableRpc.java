@@ -1,6 +1,6 @@
 package com.github.lawrence.anno;
 
-import com.github.lawrence.config.RpcConfig;
+import com.github.lawrence.config.RpcAutoConfig;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
@@ -14,6 +14,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @ComponentScan("com.github.lawrence")
-@Import({RpcConfig.class})
+@Import({RpcAutoConfig.class})
 public @interface EnableRpc {
 }
