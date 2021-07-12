@@ -57,7 +57,7 @@ public class RpcProcessor implements BeanPostProcessor {
                 enhancer.setCallback((MethodInterceptor) (proxyObj, method, params, methodProxy) -> {
                     if (methodNames.contains(method.getName())) {
                         RpcMsg rpcMsg = new RpcMsg(RpcMsg.Data.createReq(method.getName(), params));
-                        return RpcClient.sendRpc(rpcMsg);
+                        return RpcClient.sendRpc(consumer.service(),rpcMsg);
                     }
                     throw new RuntimeException("Call a non-existent method(" + method.getName() + ")");
                 });

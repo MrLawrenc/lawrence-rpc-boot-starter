@@ -23,6 +23,5 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         }
         RpcMsg rpcMsg = (RpcMsg) msg;
 
-
     }
 }

@@ -1,3 +1,5 @@
+package com
+
 import com.alibaba.nacos.api.naming.pojo.Instance
 import com.github.lawrence.LoadBalance
 import org.springframework.stereotype.Component

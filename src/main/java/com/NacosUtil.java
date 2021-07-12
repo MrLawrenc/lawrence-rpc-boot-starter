@@ -1,3 +1,5 @@
+package com;
+
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
@@ -53,9 +55,13 @@ public class NacosUtil {
         Thread.sleep(100000);
     }
 
-    public List<Instance> services(String serviceName) throws NacosException {
+    public static List<Instance> services(String serviceName) {
         RpcConfig config = Beans.getBean(RpcConfig.class);
-        NamingService naming = NamingFactory.createNamingService(config.getRegistryIp() + ":" + config.getRegistryPort());
-        return naming.getAllInstances(serviceName);
+        try {
+            NamingService naming = NamingFactory.createNamingService(config.getRegistryIp() + ":" + config.getRegistryPort());
+            return naming.getAllInstances(serviceName);
+        } catch (NacosException e) {
+            throw new RuntimeException("Registry Center Obtaining Service Abnormal", e);
+        }
     }
 }
