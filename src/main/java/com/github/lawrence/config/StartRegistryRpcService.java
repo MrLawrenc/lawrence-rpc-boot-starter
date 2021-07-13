@@ -48,7 +48,7 @@ public class StartRegistryRpcService implements ApplicationListener<ContextRefre
         }
     }
 
-    public Channel startRpcListener() {
+    public void startRpcListener() {
         ServerBootstrap bootstrap = new ServerBootstrap();
         EventLoopGroup proxyBossGroup = new NioEventLoopGroup(2,
                 new DefaultThreadFactory("server-boss"));
@@ -89,6 +89,5 @@ public class StartRegistryRpcService implements ApplicationListener<ContextRefre
             proxyBossGroup.shutdownGracefully();
             proxyWorkerGroup.shutdownGracefully();
         });
-        return channel;
     }
 }

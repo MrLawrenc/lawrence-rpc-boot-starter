@@ -14,11 +14,11 @@ import org.springframework.cglib.proxy.MethodInterceptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * @author : Lawrence
@@ -53,11 +53,11 @@ public class RpcProcessor implements BeanPostProcessor {
                 enhancer.setSuperclass(field.getClass());
                 enhancer.setNamingPolicy((s, s1, o, predicate) -> "Proxy$" + bean.getClass().getSimpleName() + COUNT.getAndIncrement());
                 Method[] methods = field.getClass().getMethods();
-                List<String> methodNames = Arrays.stream(methods).map(Method::getName).collect(toList());
+                Map<String, Method> methodMap = Arrays.stream(methods).collect(toMap(Method::getName, m -> m));
                 enhancer.setCallback((MethodInterceptor) (proxyObj, method, params, methodProxy) -> {
-                    if (methodNames.contains(method.getName())) {
-                        RpcMsg rpcMsg = new RpcMsg(RpcMsg.Data.createReq(method.getName(), params));
-                        return RpcClient.sendRpc(consumer.service(),rpcMsg);
+                    if (methodMap.containsKey(method.getName())) {
+                        RpcMsg rpcMsg = new RpcMsg(RpcMsg.Data.createReq(consumer.service(), method.getName(), params));
+                        return RpcClient.sendRpc(consumer.service(), rpcMsg,methodMap.get(method.getName()).getReturnType());
                     }
                     throw new RuntimeException("Call a non-existent method(" + method.getName() + ")");
                 });

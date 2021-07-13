@@ -30,6 +30,18 @@ public class RpcMsg {
         this.data = data;
     }
 
+    public boolean success() {
+        return Objects.nonNull(this.data) && this.data.type == 2;
+    }
+
+    public boolean exception() {
+        return Objects.nonNull(this.data) && this.data.type == 3;
+    }
+
+    public String respResult() {
+        return Objects.isNull(this.data) ? null : this.data.respJson;
+    }
+
     @lombok.Data
     public static class Data {
         /**
@@ -48,10 +60,10 @@ public class RpcMsg {
 
         private String respJson;
 
-        public static Data createReq(String methodName, Object... args) {
+        public static Data createReq(String serviceName, String methodName, Object... args) {
             Data data = new Data();
             data.type = 1;
-            data.methodName = methodName;
+            data.methodName = serviceName + "#" + methodName;
             if (Objects.nonNull(args)) {
                 data.argsJson = new ArrayList<>(args.length);
                 data.argsType = new ArrayList<>(args.length);
@@ -63,16 +75,29 @@ public class RpcMsg {
             return data;
         }
 
+        public static Data createSuccessResp(String result) {
+            return createResp(result, (byte) 2);
+        }
+
+        public static Data createExceptionResp(String result) {
+            return createResp(result, (byte) 3);
+        }
+
+        public static Data createResp(String result, byte type) {
+            Data data = new Data();
+            data.respJson = result;
+            data.type = type;
+            return data;
+        }
+
+        public String findServiceOrMethod(boolean methodName) {
+            return this.methodName.split("#")[methodName ? 1 : 0];
+        }
+
         public boolean req() {
             return type == 1;
         }
 
-        public boolean success() {
-            return type == 2;
-        }
 
-        public boolean exception() {
-            return type == 3;
-        }
     }
 }

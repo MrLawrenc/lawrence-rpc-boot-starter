@@ -7,6 +7,7 @@ import com.github.lawrence.codes.MessageDecoder;
 import com.github.lawrence.codes.MessageEncoder;
 import com.github.lawrence.codes.RpcMsg;
 import com.github.lawrence.utils.CacheUtil;
+import com.github.lawrence.utils.SyncInvokeUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -14,11 +15,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * @author : Lawrence
@@ -69,24 +66,9 @@ public class RpcClient {
     }
 
 
-    public static Object sendRpc(String serviceName, RpcMsg rpcMsg) throws InterruptedException {
+    public static Object sendRpc(String serviceName, RpcMsg rpcMsg, Class<?> returnType) throws InterruptedException {
         Channel channel = CacheUtil.getChannelIfPresent(serviceName, () -> RpcClient.connect(serviceName));
-
-
-        ChannelFuture future = channel.write(rpcMsg);
-        future.addListeners(new GenericFutureListener<Future<? super Void>>() {
-            @Override
-            public void operationComplete(Future<? super Void> future) throws Exception {
-                if (!future.isSuccess()) {
-
-                }
-            }
-        });
         //阻塞等待消息返回
-        Thread thread = Thread.currentThread();
-        LockSupport.park(channel);
-        //别处调用
-        LockSupport.unpark(thread);
-        return null;
+        return SyncInvokeUtil.syncRequest(channel, rpcMsg, returnType);
     }
 }
