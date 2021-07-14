@@ -26,8 +26,9 @@ public class RpcClient {
 
     public static Channel connect(String serviceName) {
         //lb
-
         Instance instance = new RandomLB().select(NacosUtil.services(serviceName));
+
+
         String host = instance.getIp();
         int port = instance.getPort();
 
@@ -66,7 +67,7 @@ public class RpcClient {
     }
 
 
-    public static Object sendRpc(String serviceName, RpcMsg rpcMsg, Class<?> returnType) throws InterruptedException {
+    public static Object sendRpc(String serviceName, RpcMsg rpcMsg, Class<?> returnType) {
         Channel channel = CacheUtil.getChannelIfPresent(serviceName, () -> RpcClient.connect(serviceName));
         //阻塞等待消息返回
         return SyncInvokeUtil.syncRequest(channel, rpcMsg, returnType);

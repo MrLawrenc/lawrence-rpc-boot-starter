@@ -22,11 +22,18 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcMsg> {
 
         String resultJson = msg.respResult();
         if (msg.success()) {
-            SyncInvokeUtil.respSync(ctx.channel(),resultJson);
+            SyncInvokeUtil.respSync(ctx.channel(), resultJson);
         } else if (msg.exception()) {
-
+            System.out.println(msg.respResult());
         } else {
-
+            throw new RuntimeException("");
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        SyncInvokeUtil.rmInvalidChannel(ctx.channel());
+        ctx.close();
     }
 }

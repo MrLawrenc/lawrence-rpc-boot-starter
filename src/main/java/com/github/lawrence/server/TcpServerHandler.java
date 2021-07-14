@@ -37,10 +37,13 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
         }
 
         Method method = bean.getClass().getMethod(data.findServiceOrMethod(true), paramTypes);
-        Object result = method.invoke(bean, args);
-
-        String r = JSON.toJSONString(result);
-
-        new RpcMsg(RpcMsg.Data.createSuccessResp(r));
+        try {
+            Object result = method.invoke(bean, args);
+            String r = JSON.toJSONString(result);
+            ctx.write(new RpcMsg(RpcMsg.Data.createSuccessResp(r)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            ctx.write(new RpcMsg(RpcMsg.Data.createExceptionResp("")));
+        }
     }
 }

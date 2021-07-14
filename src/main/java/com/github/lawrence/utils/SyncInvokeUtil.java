@@ -6,6 +6,7 @@ import io.netty.channel.Channel;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 
@@ -21,20 +22,31 @@ public final class SyncInvokeUtil {
 
     //发送同步请求
     public static Object syncRequest(Channel channel, RpcMsg rpcMsg, Class<?> returnType) {
-        channel.write(rpcMsg);
-        THREAD_MAP.put(channel, Thread.currentThread());
-        //only init
-        rThreadLocal.set("");
-        LockSupport.park();
-        String r = rThreadLocal.get();
-        return JSON.parseObject(r, returnType);
+        try {
+            channel.write(rpcMsg);
+            THREAD_MAP.put(channel, Thread.currentThread());
+            //only init
+            rThreadLocal.set("");
+            LockSupport.park();
+            String r = rThreadLocal.get();
+            return JSON.parseObject(r, returnType);
+        } finally {
+            rThreadLocal.remove();
+        }
     }
 
     //响应同步请求
     public static void respSync(Channel channel, String resultJson) throws Exception {
         Thread thread = THREAD_MAP.remove(channel);
+        if (Objects.isNull(thread)) {
+            //
+        }
         setValue4Thread(thread, resultJson);
         LockSupport.unpark(thread);
+    }
+
+    public static void rmInvalidChannel(Channel channel) throws Exception {
+        THREAD_MAP.remove(channel);
     }
 
 
