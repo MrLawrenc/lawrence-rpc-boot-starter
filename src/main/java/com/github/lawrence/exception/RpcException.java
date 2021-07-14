@@ -27,7 +27,7 @@ public class RpcException extends RuntimeException {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public static String a(Throwable t) {
+    public static String a(Throwable t) throws Exception{
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         t.printStackTrace(pw);

@@ -2,6 +2,7 @@ package com.github.lawrence;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -22,5 +23,5 @@ public interface LoadBalance {
      * @param instances 所有实例列表
      * @return 选择到的实例
      */
-    Instance select(List<Instance> instances);
+    Instance select(List<Instance> instances) throws NoSuchAlgorithmException;
 }
