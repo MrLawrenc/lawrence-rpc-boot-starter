@@ -2,6 +2,7 @@ package com.github.lawrence.server;
 
 import com.alibaba.fastjson.JSON;
 import com.github.lawrence.codes.RpcMsg;
+import com.github.lawrence.exception.RpcServerException;
 import com.github.lawrence.utils.CacheUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,6 +18,11 @@ import java.lang.reflect.Method;
 @Slf4j
 @ChannelHandler.Sharable
 public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info(ctx.channel().remoteAddress() + " is connected");
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcMsg msg) throws Exception {
@@ -42,8 +48,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
             String r = JSON.toJSONString(result);
             ctx.write(new RpcMsg(RpcMsg.Data.createSuccessResp(r)));
         } catch (Exception e) {
-            e.printStackTrace();
-            ctx.write(new RpcMsg(RpcMsg.Data.createExceptionResp("")));
+            ctx.write(new RpcMsg(RpcMsg.Data.createExceptionResp(RpcServerException.trans(e))));
         }
     }
 }

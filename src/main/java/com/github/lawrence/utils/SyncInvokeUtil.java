@@ -2,7 +2,11 @@ package com.github.lawrence.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.github.lawrence.codes.RpcMsg;
+import com.github.lawrence.exception.RpcClientException;
 import io.netty.channel.Channel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -18,39 +22,70 @@ public final class SyncInvokeUtil {
 
     private static final Map<Channel, Thread> THREAD_MAP = new ConcurrentHashMap<>(8);
 
-    private final static ThreadLocal<String> rThreadLocal = new ThreadLocal<>();
+    private final static ThreadLocal<RespMsg> rThreadLocal = new ThreadLocal<>();
+    private final static RespMsg initObj = new RespMsg();
+
+    //1min
+    static long wait_nanos = 1000 * 1000 * 60;
 
     //发送同步请求
-    public static Object syncRequest(Channel channel, RpcMsg rpcMsg, Class<?> returnType) {
+    public static <T>T syncRequest(Channel channel, RpcMsg rpcMsg, Class<T> returnType) {
         try {
             channel.write(rpcMsg);
             THREAD_MAP.put(channel, Thread.currentThread());
             //only init
-            rThreadLocal.set("");
-            LockSupport.park();
-            String r = rThreadLocal.get();
-            return JSON.parseObject(r, returnType);
+            rThreadLocal.set(initObj);
+            long start = System.currentTimeMillis();
+
+            //防止虚假唤醒
+            /*boolean timeout = false;
+            while (!notified&&!timeout) {
+                LockSupport.parkNanos(wait_nanos);
+                if ((System.currentTimeMillis() - start) * 1000 >= wait_nanos) {
+                    timeout = true;
+                }
+            }*/
+
+            LockSupport.parkNanos(wait_nanos);
+            //@see java.util.concurrent.locks.LockSupport.parkNanos(long) javadoc
+            if (Thread.interrupted()) {
+                throw new RpcClientException("The client was interrupted abnormally");
+            }
+            if ((System.currentTimeMillis() - start) * 1000 >= wait_nanos) {
+                throw new RpcClientException("Server response timed out");
+            }
+            RespMsg rspMsg = rThreadLocal.get();
+            if (Objects.isNull(rspMsg)) {
+                throw new RpcClientException("The server does not respond to data or the client is falsely awakened(Because the call spuriously (that is, for no reason) returns.)");
+            }
+            if (rspMsg.exception) {
+                throw new RpcClientException(rspMsg.result);
+            }
+            return JSON.parseObject(rspMsg.result, returnType);
         } finally {
             rThreadLocal.remove();
         }
     }
 
     //响应同步请求
-    public static void respSync(Channel channel, String resultJson) throws Exception {
+    public static void respSync(Channel channel, String resultJson, boolean exception) throws Exception {
         Thread thread = THREAD_MAP.remove(channel);
-        if (Objects.isNull(thread)) {
-            //
+        try {
+            if (Objects.isNull(thread)) {
+                throw new RpcClientException("The line is disconnected");
+            }
+            setValue4Thread(thread, new RespMsg(exception, resultJson));
+        } finally {
+            LockSupport.unpark(thread);
         }
-        setValue4Thread(thread, resultJson);
-        LockSupport.unpark(thread);
     }
 
-    public static void rmInvalidChannel(Channel channel) throws Exception {
+    public static void rmInvalidChannel(Channel channel) {
         THREAD_MAP.remove(channel);
     }
 
 
-    static void setValue4Thread(Thread thread, String respJson) throws Exception {
+    static void setValue4Thread(Thread thread, RespMsg respMsg) throws Exception {
         Field field = Thread.class.getDeclaredField("threadLocals");
         field.setAccessible(true);
         Object localMap = field.get(thread);
@@ -64,10 +99,18 @@ public final class SyncInvokeUtil {
             if (currentTl == rThreadLocal) {
                 Field v = entry.getClass().getDeclaredField("value");
                 v.setAccessible(true);
-                v.set(entry, respJson);
+                v.set(entry, respMsg);
                 break;
             }
         }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RespMsg {
+        boolean exception = false;
+        String result;
     }
 
 }

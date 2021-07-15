@@ -1,6 +1,5 @@
 package com.github.lawrence.utils;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 
 import java.util.HashMap;
@@ -8,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.LockSupport;
 import java.util.function.Supplier;
 
 /**
@@ -41,6 +39,17 @@ public final class CacheUtil {
             CHANNEL_MAP.put(serviceName, cacheChannel);
         }
         return cacheChannel;
+    }
+
+    public static void rmChannel(Channel channel) {
+        String serviceName = null;
+        for (Map.Entry<String, Channel> entry : CHANNEL_MAP.entrySet()) {
+            if (entry == channel) {
+                serviceName = entry.getKey();
+                break;
+            }
+        }
+        CHANNEL_MAP.remove(serviceName);
     }
 
 

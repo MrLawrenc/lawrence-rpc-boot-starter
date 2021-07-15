@@ -1,6 +1,7 @@
 package com.github.lawrence.client;
 
 import com.github.lawrence.codes.RpcMsg;
+import com.github.lawrence.utils.CacheUtil;
 import com.github.lawrence.utils.SyncInvokeUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,21 +20,18 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcMsg> {
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcMsg msg) throws Exception {
-
         String resultJson = msg.respResult();
-        if (msg.success()) {
-            SyncInvokeUtil.respSync(ctx.channel(), resultJson);
-        } else if (msg.exception()) {
-            System.out.println(msg.respResult());
+        if (msg.success() || msg.exception()) {
+            SyncInvokeUtil.respSync(ctx.channel(), resultJson, msg.exception());
         } else {
-            throw new RuntimeException("");
+            SyncInvokeUtil.respSync(ctx.channel(), "The server responded with an unknown message", true);
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
         SyncInvokeUtil.rmInvalidChannel(ctx.channel());
+        CacheUtil.rmChannel(ctx.channel());
         ctx.close();
     }
 }

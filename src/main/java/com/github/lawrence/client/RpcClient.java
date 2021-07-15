@@ -32,6 +32,10 @@ public class RpcClient {
         String host = instance.getIp();
         int port = instance.getPort();
 
+        return connect0(host, port);
+    }
+
+    public static Channel connect0(String host, int port) {
         Bootstrap b = new Bootstrap();
         NioEventLoopGroup work = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() << 1,
                 new DefaultThreadFactory("main-client-work"));
@@ -64,6 +68,7 @@ public class RpcClient {
         });
         future.channel().closeFuture().addListener(f -> work.shutdownGracefully());
         return future.channel();
+
     }
 
 
