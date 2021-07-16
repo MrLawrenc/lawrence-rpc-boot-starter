@@ -19,6 +19,6 @@ public class RpcConfig {
     /**
      * 默认服务地址信息
      */
-    private String serviceIp = "localhost";
+    private String serviceIp = "127.0.0.1";
     private int servicePort = 9010;
 }

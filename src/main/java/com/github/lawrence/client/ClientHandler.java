@@ -6,21 +6,25 @@ import com.github.lawrence.utils.SyncInvokeUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author : Lawrence
  * date  2021/7/11 21:20
  */
 @ChannelHandler.Sharable
+@Slf4j
 public class ClientHandler extends SimpleChannelInboundHandler<RpcMsg> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
+        log.info("connected to " + ctx.channel().remoteAddress());
     }
 
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcMsg msg) throws Exception {
         String resultJson = msg.respResult();
+        log.debug("client received msg:{}", resultJson);
         if (msg.success() || msg.exception()) {
             SyncInvokeUtil.respSync(ctx.channel(), resultJson, msg.exception());
         } else {

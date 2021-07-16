@@ -29,6 +29,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
         //validate
 
         RpcMsg.Data data = msg.getData();
+        log.debug("server received msg:{}", JSON.toJSONString(data));
 
         Object bean = CacheUtil.getBeanByServiceName(data.findServiceOrMethod(false));
         int paramsLen = data.getArgsType().size();
@@ -46,9 +47,9 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
         try {
             Object result = method.invoke(bean, args);
             String r = JSON.toJSONString(result);
-            ctx.write(new RpcMsg(RpcMsg.Data.createSuccessResp(r)));
+            ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createSuccessResp(r)));
         } catch (Exception e) {
-            ctx.write(new RpcMsg(RpcMsg.Data.createExceptionResp(RpcServerException.trans(e))));
+            ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createExceptionResp(RpcServerException.trans(e))));
         }
     }
 }

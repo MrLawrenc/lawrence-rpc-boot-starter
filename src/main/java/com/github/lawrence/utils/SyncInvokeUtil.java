@@ -25,13 +25,13 @@ public final class SyncInvokeUtil {
     private final static ThreadLocal<RespMsg> rThreadLocal = new ThreadLocal<>();
     private final static RespMsg initObj = new RespMsg();
 
-    //1min
-    static long wait_nanos = 1000 * 1000 * 60;
+    //s
+    static int wait_seconds = 60;
 
     //发送同步请求
-    public static <T>T syncRequest(Channel channel, RpcMsg rpcMsg, Class<T> returnType) {
+    public static <T> T syncRequest(Channel channel, RpcMsg rpcMsg, Class<T> returnType) {
         try {
-            channel.write(rpcMsg);
+            channel.writeAndFlush(rpcMsg);
             THREAD_MAP.put(channel, Thread.currentThread());
             //only init
             rThreadLocal.set(initObj);
@@ -46,16 +46,16 @@ public final class SyncInvokeUtil {
                 }
             }*/
 
-            LockSupport.parkNanos(wait_nanos);
+            LockSupport.parkUntil(start + wait_seconds * 1000);
             //@see java.util.concurrent.locks.LockSupport.parkNanos(long) javadoc
             if (Thread.interrupted()) {
                 throw new RpcClientException("The client was interrupted abnormally");
             }
-            if ((System.currentTimeMillis() - start) * 1000 >= wait_nanos) {
+            if (System.currentTimeMillis() >= start + wait_seconds * 1000) {
                 throw new RpcClientException("Server response timed out");
             }
             RespMsg rspMsg = rThreadLocal.get();
-            if (Objects.isNull(rspMsg)) {
+            if (Objects.isNull(rspMsg) || Objects.isNull(rspMsg.result)) {
                 throw new RpcClientException("The server does not respond to data or the client is falsely awakened(Because the call spuriously (that is, for no reason) returns.)");
             }
             if (rspMsg.exception) {
@@ -93,6 +93,9 @@ public final class SyncInvokeUtil {
         entryArray.setAccessible(true);
         Object[] entryArrayObj = (Object[]) entryArray.get(localMap);
         for (Object entry : entryArrayObj) {
+            if (entry==null){
+                continue;
+            }
             Field currentTlField = entry.getClass().getSuperclass().getSuperclass().getDeclaredField("referent");
             currentTlField.setAccessible(true);
             ThreadLocal<?> currentTl = (ThreadLocal<?>) currentTlField.get(entry);

@@ -61,7 +61,7 @@ public class StartRegistryRpcService implements ApplicationListener<ContextRefre
                     @Override
                     public void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new IdleStateHandler(60, 20, 0, TimeUnit.SECONDS));
+                         pipeline.addLast(new IdleStateHandler(60, 20, 0, TimeUnit.SECONDS));
 
                         pipeline.addLast("decode", new MessageDecoder())
                                 .addLast("encode", new MessageEncoder());
@@ -72,13 +72,13 @@ public class StartRegistryRpcService implements ApplicationListener<ContextRefre
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         ChannelFuture future;
         try {
-            future = bootstrap.bind(rpcConfig.getRegistryIp(), rpcConfig.getServicePort()).sync();
+            future = bootstrap.bind(rpcConfig.getServiceIp(), rpcConfig.getServicePort()).sync();
         } catch (InterruptedException e) {
             throw new RuntimeException("Rpc service failed to start", e);
         }
         future.addListener(fu -> {
             if (fu.isSuccess()) {
-                log.info("server  started on port {}!", rpcConfig.getServicePort());
+                log.info("server started on port {}!", rpcConfig.getServicePort());
             } else {
                 log.error("server start fail! will close current service!");
                 System.exit(0);

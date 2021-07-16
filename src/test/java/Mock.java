@@ -27,7 +27,8 @@ public class Mock {
         RpcMsg rpcMsg = new RpcMsg(RpcMsg.Data.createReq(serviceName, "testM", "Rpc"));
 
         String rpcResp = SyncInvokeUtil.syncRequest(channel, rpcMsg, String.class);
-        System.out.println(rpcResp);
+        System.out.println("rps invoke result:" + rpcResp);
+
     }
 
     public static void main(String[] args) {

@@ -9,6 +9,7 @@ group 'com.github.lawrence'
 version '1.0-SNAPSHOT'
 
 apply from: 'version.gradle'
+apply plugin: 'org.springframework.boot'
 repositories {
     //先从本地仓库找 可以配置环境变量GRADLE_USER_HOME 配置为本地仓库地址  或者指向maven本地仓库即可
     mavenLocal()

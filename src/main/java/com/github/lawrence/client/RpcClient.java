@@ -46,8 +46,7 @@ public class RpcClient {
                     @Override
                     public void initChannel(SocketChannel ch) {
                         ClientHandler clientHandler = new ClientHandler();
-                        ch.pipeline().addLast(new MessageDecoder(), new MessageEncoder(),
-                                new IdleStateHandler(60, 20, 0));
+                        ch.pipeline().addLast(new MessageDecoder(), new MessageEncoder(), new IdleStateHandler(60, 20, 0));
                         ch.pipeline().addLast(clientHandler);
                     }
                 });
