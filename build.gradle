@@ -2,6 +2,7 @@ plugins {
     id 'groovy'
     id 'java'
     id 'maven'
+    id 'eclipse'
     id 'org.springframework.boot' version '2.3.0.RELEASE'
 }
 
@@ -28,6 +29,8 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
+    implementation 'org.codehaus.groovy:groovy-all:2.3.3'
+
     implementation rootProject.ext.dependence.nacos_client
     implementation rootProject.ext.dependence.log4j
     implementation rootProject.ext.dependence.slf4j_api
@@ -47,3 +50,51 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+
+//通过doLast获取返回值
+task setHostnameProperty {
+    new ByteArrayOutputStream().withStream { os ->
+        def result = exec {
+            executable = 'cmd'
+            args " /c gradle -v"
+            standardOutput = os
+        }
+        ext.hostname = os.toString()
+        ext.result = result
+    }
+    doLast {
+        println ext
+        println hostname
+        println result
+    }
+}
+// 执行cmd命令
+task execCmd2(type: Exec, description: 'just for test bat  task') {
+    String cmd = """
+                    mvn install:install-file -Dfile=D:/taobao-sdk-java-auto-20160607.jar -DgroupId=com.ganshane.specs -DartifactId=taobao-sdk-java-auto-20160607 -Dversion=1.0.0 -Dpackaging=jar
+                """
+    workingDir './'
+    ByteArrayOutputStream out = new ByteArrayOutputStream()
+    def commands = []
+    if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+        commands << 'cmd'
+        commands << '/c'
+    } else {
+        commands << 'bash'
+        commands << '-c'
+    }
+    setStandardOutput(out)
+    commands.add("gradle -v")
+
+    commandLine(commands)
+
+
+    doLast {
+        println '================================'
+        println out.toString()
+        println '================================'
+    }
+}
+
+
