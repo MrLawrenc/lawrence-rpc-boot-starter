@@ -51,23 +51,51 @@ test {
     useJUnitPlatform()
 }
 
-
-//通过doLast获取返回值
-task setHostnameProperty {
+///cmd的 /C 执行字符串指定的命令然后终止
+//安装到本地仓库
+task mvnInstallLocal {
     new ByteArrayOutputStream().withStream { os ->
         def result = exec {
+            workingDir "./"
             executable = 'cmd'
-            args " /c gradle -v"
+            args "mvn help:evaluate -Dexpression=settings.localRepository"
+//            args "mvn -v"
             standardOutput = os
         }
         ext.hostname = os.toString()
-        ext.result = result
     }
     doLast {
-        println ext
+        println "=================="
         println hostname
-        println result
+        println "=================="
+        String r = hostname
+        String[] lines = r.split(System.lineSeparator())
+        String local = Arrays.asList(lines).find {
+            !it.startsWith("[INFO]")
+        }
+        println local
     }
+}
+
+//通过doLast获取返回值
+task setHostnameProperty {
+    def cmd = "gradle -v"
+    ["cmd", "/c", cmd].execute()
+
+//    new ByteArrayOutputStream().withStream { os ->
+//        def result = exec {
+//            executable = 'cmd'
+//            args " /c gradle -v"
+//            standardOutput = os
+//        }
+//        ext.hostname = os.toString()
+//        ext.result = result
+//    }
+//    doLast {
+//        println ext
+//        println hostname
+//        println result
+//    }
 }
 // 执行cmd命令
 task execCmd2(type: Exec, description: 'just for test bat  task') {
