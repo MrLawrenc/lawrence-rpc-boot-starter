@@ -10,6 +10,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * @author Lawrence
@@ -48,8 +49,10 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
             Object result = method.invoke(bean, args);
             String r = JSON.toJSONString(result);
             ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createSuccessResp(r)));
-        } catch (Exception e) {
-            ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createExceptionResp(RpcServerException.trans(e))));
+        } catch (Throwable e) {
+            log.error("invoke {}#{} error!", bean.getClass().getName(), method.getName(), e);
+            Throwable cause = e.getCause();
+            ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createExceptionResp(Objects.nonNull(cause) ? cause.getMessage() : RpcServerException.trans(e, false))));
         }
     }
 }

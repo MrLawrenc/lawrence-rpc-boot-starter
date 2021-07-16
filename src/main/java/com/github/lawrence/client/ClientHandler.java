@@ -24,7 +24,6 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcMsg> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcMsg msg) throws Exception {
         String resultJson = msg.respResult();
-        log.debug("client received msg:{}", resultJson);
         if (msg.success() || msg.exception()) {
             SyncInvokeUtil.respSync(ctx.channel(), resultJson, msg.exception());
         } else {
