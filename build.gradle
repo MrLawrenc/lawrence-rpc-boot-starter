@@ -1,21 +1,42 @@
+buildscript {
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
+    }
+}
 plugins {
-    id 'groovy'
+    //id 'groovy'
     id 'java'
     id 'maven'
     id 'eclipse'
-    id 'org.springframework.boot' version '2.3.0.RELEASE'
+    id 'org.springframework.boot' version '2.1.0.RELEASE'
+    id 'maven-publish'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java-library'
+}
+
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }
 
 group 'com.github.lawrence'
 version '1.0-SNAPSHOT'
 
 apply from: 'version.gradle'
-apply plugin: 'org.springframework.boot'
 repositories {
     //先从本地仓库找 可以配置环境变量GRADLE_USER_HOME 配置为本地仓库地址  或者指向maven本地仓库即可
+    def localMavenRepo = new File("F:\\maven-repository").toURL()
     mavenLocal()
     maven {
         url 'https://maven.aliyun.com/nexus/content/groups/public/'
+    }
+    maven {
+        url localMavenRepo
     }
     mavenCentral()
 }
@@ -23,32 +44,71 @@ repositories {
 
 dependencies {
 
-    implementation 'org.codehaus.groovy:groovy-all:3.0.5'
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
-    implementation 'org.codehaus.groovy:groovy-all:2.3.3'
 
-    implementation rootProject.ext.dependence.nacos_client
+    compile rootProject.ext.dependence.nacos_client
     implementation rootProject.ext.dependence.log4j
     implementation rootProject.ext.dependence.slf4j_api
     implementation rootProject.ext.dependence.logback
     implementation rootProject.ext.dependence.fastjson
-    implementation rootProject.ext.dependence.io_netty
+    compile rootProject.ext.dependence.io_netty
 
     annotationProcessor rootProject.ext.dependence.lombok
     compileOnly rootProject.ext.dependence.lombok
     testAnnotationProcessor rootProject.ext.dependence.lombok
     testCompileOnly rootProject.ext.dependence.lombok
 
-    implementation 'org.springframework.boot:spring-boot-starter:2.3.0.RELEASE'
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:2.3.0.RELEASE"
+    implementation 'org.springframework.boot:spring-boot-starter'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
 }
 
 test {
     useJUnitPlatform()
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+jar {
+    enabled = true
+
+}
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+// 指定上传的路径
+def localMavenRepo = new File("F:\\maven-repository").toURL()
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: localMavenRepo)
+
+            //构造项目的Pom文件
+            pom.project {
+                name = project.name
+                packaging = 'jar'
+                description = 'description'
+            }
+        }
+
+    }
 }
 
 ///cmd的 /C 执行字符串指定的命令然后终止

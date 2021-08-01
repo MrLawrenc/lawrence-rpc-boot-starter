@@ -10,6 +10,6 @@ ext {
             logback     : "ch.qos.logback:logback-classic:1.1.11",
             fastjson    : "com.alibaba:fastjson:1.2.68",
             lombok      : "org.projectlombok:lombok:1.18.12",
-            io_netty      : "io.netty:netty-all:4.1.42.Final"
+            io_netty    : "io.netty:netty-all:4.1.42.Final"
     ]
 }

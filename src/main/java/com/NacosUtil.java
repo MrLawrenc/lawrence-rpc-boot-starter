@@ -3,24 +3,20 @@ package com;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
-import com.alibaba.nacos.api.naming.listener.Event;
-import com.alibaba.nacos.api.naming.listener.EventListener;
-import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.github.lawrence.config.Beans;
 import com.github.lawrence.config.RpcConfig;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author : Lawrence
  * date  2021/7/11 14:47
  */
 public class NacosUtil {
-    public static void main(String[] args) throws Exception {
+/*    public static void main(String[] args) throws Exception {
         //引入的client必须和server版本匹配
-        /* NamingService naming = NamingFactory.createNamingService("172.27.35.10:8850");
+        *//* NamingService naming = NamingFactory.createNamingService("172.27.35.10:8850");
        Instance instance = new Instance();
         instance.setIp("127.0.0.1");
         instance.setPort(8899);
@@ -30,7 +26,7 @@ public class NacosUtil {
         instanceMeta.put("site", "et2");
         instance.setMetadata(instanceMeta);
 
-        naming.registerInstance("test", instance);*/
+        naming.registerInstance("test", instance);*//*
         Properties properties = new Properties();
         properties.setProperty("serverAddr", "172.27.35.10:8850");
         // properties.setProperty("namespace", "lmy");
@@ -53,7 +49,7 @@ public class NacosUtil {
             }
         });
         Thread.sleep(100000);
-    }
+    }*/
 
     public static List<Instance> services(String serviceName) {
         RpcConfig config = Beans.getBean(RpcConfig.class);

@@ -108,6 +108,8 @@ buildNumber.properties
 
 ins-category-person/*/target
 
+/.gradle/
+
 .gradle/**
 build
 gradle

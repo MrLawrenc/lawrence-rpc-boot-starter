@@ -1,4 +1,3 @@
-import com.LunXunLB;
 import com.github.lawrence.client.RpcClient;
 import com.github.lawrence.codes.RpcMsg;
 import com.github.lawrence.config.RpcConfig;
@@ -14,7 +13,7 @@ import io.netty.channel.Channel;
 
 public class Mock {
     public void mock(boolean exception) {
-        System.out.println(new LunXunLB().getA());
+        //System.out.println(new LunXunLB().getA());
         //本地测试配置
         RpcConfig rpcConfig = new RpcConfig();
         rpcConfig.setServiceIp("127.0.0.1");
