@@ -52,11 +52,12 @@ dependencies {
 
 
     compile rootProject.ext.dependence.nacos_client
+    compile rootProject.ext.dependence.io_netty
+
     implementation rootProject.ext.dependence.log4j
     implementation rootProject.ext.dependence.slf4j_api
     implementation rootProject.ext.dependence.logback
-    implementation rootProject.ext.dependence.fastjson
-    compile rootProject.ext.dependence.io_netty
+
 
     annotationProcessor rootProject.ext.dependence.lombok
     compileOnly rootProject.ext.dependence.lombok

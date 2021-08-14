@@ -47,12 +47,13 @@ public class RpcProcessor implements BeanPostProcessor {
     public void tryConsumer(Object bean) throws IllegalAccessException {
         for (Field field : bean.getClass().getDeclaredFields()) {
             field.setAccessible(true);
-            RpcConsumer consumer = field.getAnnotation(RpcConsumer.class);
+
+            RpcConsumer consumer = field.getType().getAnnotation(RpcConsumer.class);
             if (Objects.nonNull(consumer)) {
                 Enhancer enhancer = new Enhancer();
-                enhancer.setSuperclass(field.getClass());
+                enhancer.setSuperclass(field.getType());
                 enhancer.setNamingPolicy((s, s1, o, predicate) -> "Proxy$" + bean.getClass().getSimpleName() + COUNT.getAndIncrement());
-                Method[] methods = field.getClass().getMethods();
+                Method[] methods = field.getType().getMethods();
                 Map<String, Method> methodMap = Arrays.stream(methods).collect(toMap(Method::getName, m -> m));
                 enhancer.setCallback((MethodInterceptor) (proxyObj, method, params, methodProxy) -> {
                     if (methodMap.containsKey(method.getName())) {

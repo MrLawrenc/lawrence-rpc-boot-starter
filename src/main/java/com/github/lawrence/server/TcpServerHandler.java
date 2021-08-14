@@ -1,6 +1,6 @@
 package com.github.lawrence.server;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lawrence.codes.RpcMsg;
 import com.github.lawrence.exception.RpcServerException;
 import com.github.lawrence.utils.CacheUtil;
@@ -26,11 +26,11 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RpcMsg msg) throws Exception {
+    public void channelRead0(ChannelHandlerContext ctx, RpcMsg msg) throws Exception {
         //validate
 
         RpcMsg.Data data = msg.getData();
-        log.debug("server received msg:{}", JSON.toJSONString(data));
+        log.debug("server received msg:{}", new ObjectMapper().writeValueAsString(data));
 
         Object bean = CacheUtil.getBeanByServiceName(data.findServiceOrMethod(false));
         int paramsLen = data.getArgsType().size();
@@ -40,7 +40,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
         for (int i = 0; i < paramsLen; i++) {
             Class<?> paramType = Class.forName(data.getArgsType().get(i));
             paramTypes[i] = paramType;
-            Object paramObj = JSON.parseObject(data.getArgsJson().get(i), paramType);
+            Object paramObj = new ObjectMapper().readValue(data.getArgsJson().get(i), paramType);
             args[i] = paramObj;
         }
 
@@ -48,10 +48,10 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
         try {
             method = bean.getClass().getMethod(data.findServiceOrMethod(true), paramTypes);
             Object result = method.invoke(bean, args);
-            String r = JSON.toJSONString(result);
+            String r = new ObjectMapper().writeValueAsString(result);
             ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createSuccessResp(r)));
         } catch (Throwable e) {
-            log.error("invoke {}#{} error!", bean.getClass().getName(), method==null?"unknown method":method.getName(), e);
+            log.error("invoke {}#{} error!", bean.getClass().getName(), method == null ? "unknown method" : method.getName(), e);
             Throwable cause = e.getCause();
             ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createExceptionResp(Objects.nonNull(cause) ? cause.getMessage() : RpcServerException.trans(e, false))));
         }

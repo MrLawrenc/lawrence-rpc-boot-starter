@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author : Lawrence
  * date  2021/7/11 16:31
  */
-@Target({ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.TYPE,ElementType.PARAMETER, ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited

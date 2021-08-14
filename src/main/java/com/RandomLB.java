@@ -10,6 +10,7 @@ import java.util.Objects;
 
 /**
  * sda
+ *
  * @author : Lawrence
  * date  2021/7/14 20:56
  */
@@ -30,7 +31,7 @@ public class RandomLB implements LoadBalance {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        random.setSeed(instances.size());
-        return instances.get(random.nextInt());
+        random.setSeed(System.currentTimeMillis());
+        return instances.get(random.nextInt(instances.size()));
     }
 }

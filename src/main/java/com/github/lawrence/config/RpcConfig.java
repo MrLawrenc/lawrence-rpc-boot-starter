@@ -13,8 +13,8 @@ public class RpcConfig {
     /**
      * 注册中心信息
      */
-    private String registryIp = "172.27.35.10";
-    private String registryPort = "8850";
+    private String registryIp = "192.168.0.104";
+    private String registryPort = "8848";
 
     /**
      * 默认服务地址信息

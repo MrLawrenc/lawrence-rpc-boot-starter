@@ -1,7 +1,9 @@
 package com.github.lawrence.codes;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Objects;
  * date  2021/7/11 18:45
  */
 @Data
+@NoArgsConstructor
 public class RpcMsg {
     /**
      * 魔数 定值
@@ -60,7 +63,7 @@ public class RpcMsg {
 
         private String respJson;
 
-        public static Data createReq(String serviceName, String methodName, Object... args) {
+        public static Data createReq(String serviceName, String methodName, Object... args) throws JsonProcessingException {
             Data data = new Data();
             data.type = 1;
             data.methodName = serviceName + "#" + methodName;
@@ -68,7 +71,7 @@ public class RpcMsg {
                 data.argsJson = new ArrayList<>(args.length);
                 data.argsType = new ArrayList<>(args.length);
                 for (Object arg : args) {
-                    data.argsJson.add(JSON.toJSONString(arg));
+                    data.argsJson.add(new ObjectMapper().writeValueAsString(arg));
                     data.argsType.add(arg.getClass().getName());
                 }
             }

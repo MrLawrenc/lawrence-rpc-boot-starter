@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.lawrence.client.RpcClient;
 import com.github.lawrence.codes.RpcMsg;
 import com.github.lawrence.config.RpcConfig;
@@ -12,7 +13,7 @@ import io.netty.channel.Channel;
  */
 
 public class Mock {
-    public void mock(boolean exception) {
+    public void mock(boolean exception) throws JsonProcessingException {
         //System.out.println(new LunXunLB().getA());
         //本地测试配置
         RpcConfig rpcConfig = new RpcConfig();
@@ -34,7 +35,7 @@ public class Mock {
         System.out.println("rps invoke result:" + rpcResp);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws JsonProcessingException {
         //new Mock().mock(false);
         new Mock().mock(true);
     }

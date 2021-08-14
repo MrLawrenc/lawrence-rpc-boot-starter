@@ -1,6 +1,6 @@
 package com.github.lawrence.utils;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lawrence.codes.RpcMsg;
 import com.github.lawrence.exception.RpcClientException;
 import io.netty.channel.Channel;
@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
@@ -61,7 +62,9 @@ public final class SyncInvokeUtil {
             if (rspMsg.exception) {
                 throw new RpcClientException(rspMsg.result);
             }
-            return JSON.parseObject(rspMsg.result, returnType);
+            return new ObjectMapper().readValue(rspMsg.result, returnType);
+        } catch (IOException e) {
+            throw new RpcClientException(e);
         } finally {
             rThreadLocal.remove();
         }
@@ -93,7 +96,7 @@ public final class SyncInvokeUtil {
         entryArray.setAccessible(true);
         Object[] entryArrayObj = (Object[]) entryArray.get(localMap);
         for (Object entry : entryArrayObj) {
-            if (entry==null){
+            if (entry == null) {
                 continue;
             }
             Field currentTlField = entry.getClass().getSuperclass().getSuperclass().getDeclaredField("referent");
