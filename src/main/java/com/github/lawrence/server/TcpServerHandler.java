@@ -28,19 +28,19 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcMsg msg) throws Exception {
         //validate
-
+        ObjectMapper objectMapper = new ObjectMapper();
         RpcMsg.Data data = msg.getData();
-        log.debug("server received msg:{}", new ObjectMapper().writeValueAsString(data));
+        long start = System.currentTimeMillis();
+        log.debug("server received msg:{}", objectMapper.writeValueAsString(data));
 
         Object bean = CacheUtil.getBeanByServiceName(data.findServiceOrMethod(false));
         int paramsLen = data.getArgsType().size();
         Class<?>[] paramTypes = new Class<?>[paramsLen];
         Object[] args = new Object[paramsLen];
-
         for (int i = 0; i < paramsLen; i++) {
             Class<?> paramType = Class.forName(data.getArgsType().get(i));
             paramTypes[i] = paramType;
-            Object paramObj = new ObjectMapper().readValue(data.getArgsJson().get(i), paramType);
+            Object paramObj = objectMapper.readValue(data.getArgsJson().get(i), paramType);
             args[i] = paramObj;
         }
 
@@ -48,8 +48,9 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<RpcMsg> {
         try {
             method = bean.getClass().getMethod(data.findServiceOrMethod(true), paramTypes);
             Object result = method.invoke(bean, args);
-            String r = new ObjectMapper().writeValueAsString(result);
+            String r = objectMapper.writeValueAsString(result);
             ctx.writeAndFlush(new RpcMsg(RpcMsg.Data.createSuccessResp(r)));
+            log.debug("server handle cost time --> {}ms", System.currentTimeMillis() - start);
         } catch (Throwable e) {
             log.error("invoke {}#{} error!", bean.getClass().getName(), method == null ? "unknown method" : method.getName(), e);
             Throwable cause = e.getCause();

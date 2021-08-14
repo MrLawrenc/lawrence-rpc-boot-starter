@@ -1,8 +1,6 @@
 package com.github.lawrence.client;
 
 import com.NacosUtil;
-import com.RandomLB;
-import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.github.lawrence.codes.MessageDecoder;
 import com.github.lawrence.codes.MessageEncoder;
 import com.github.lawrence.codes.RpcMsg;
@@ -17,6 +15,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author : Lawrence
  * date  2021/7/11 21:18
@@ -24,15 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RpcClient {
 
-    public static Channel connect(String serviceName) {
-        //lb
-        Instance instance = new RandomLB().select(NacosUtil.services(serviceName));
 
-
-        String host = instance.getIp();
-        int port = instance.getPort();
-
-        return connect0(host, port);
+    public static List<InstanceChannel> connect(String serviceName) {
+        return NacosUtil.services(serviceName).stream().map(instance -> {
+            String host = instance.getIp();
+            int port = instance.getPort();
+            Channel channel = connect0(host, port);
+            return new InstanceChannel(instance, channel);
+        }).collect(Collectors.toList());
     }
 
     public static Channel connect0(String host, int port) {

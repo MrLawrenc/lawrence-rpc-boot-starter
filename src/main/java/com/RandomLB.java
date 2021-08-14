@@ -1,7 +1,7 @@
 package com;
 
-import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.github.lawrence.LoadBalance;
+import com.github.lawrence.client.InstanceChannel;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -21,7 +21,7 @@ public class RandomLB implements LoadBalance {
     }
 
     @Override
-    public Instance select(List<Instance> instances) {
+    public InstanceChannel select(List<InstanceChannel> instances) {
         if (Objects.isNull(instances)) {
             throw new RuntimeException("No service list available");
         }

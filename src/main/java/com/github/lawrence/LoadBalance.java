@@ -1,6 +1,6 @@
 package com.github.lawrence;
 
-import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.github.lawrence.client.InstanceChannel;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -23,5 +23,5 @@ public interface LoadBalance {
      * @param instances 所有实例列表
      * @return 选择到的实例
      */
-    Instance select(List<Instance> instances) throws NoSuchAlgorithmException;
+    InstanceChannel select(List<InstanceChannel> instances) throws NoSuchAlgorithmException;
 }

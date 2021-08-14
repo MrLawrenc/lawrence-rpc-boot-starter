@@ -1,11 +1,10 @@
 package com.github.lawrence.utils;
 
+import com.RandomLB;
+import com.github.lawrence.client.InstanceChannel;
 import io.netty.channel.Channel;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -14,11 +13,15 @@ import java.util.function.Supplier;
  * date  2021/7/11 17:12
  */
 public final class CacheUtil {
-    //key 为serviceName value为该服务对应的bean
+    /**
+     * key 为serviceName value为该服务对应的bean
+     */
     private static final Map<String, Object> SERVICE_MAP = new HashMap<>();
 
-    //key 为serviceName value为该服务对应的连接通道channel
-    private static final Map<String, Channel> CHANNEL_MAP = new ConcurrentHashMap<>(8);
+    /**
+     * key 为serviceName value为该服务对应的连接通道channel
+     */
+    private static final Map<String, List<InstanceChannel>> CHANNEL_MAP = new ConcurrentHashMap<>(8);
 
     public static void addServiceInfo(String serviceName, Object service) {
         SERVICE_MAP.put(serviceName, service);
@@ -32,25 +35,22 @@ public final class CacheUtil {
         return SERVICE_MAP.keySet();
     }
 
-    public static Channel getChannelIfPresent(String serviceName, Supplier<Channel> channel) {
-        Channel cacheChannel = CHANNEL_MAP.get(serviceName);
-        if (Objects.isNull(cacheChannel)) {
-            cacheChannel = channel.get();
-            CHANNEL_MAP.put(serviceName, cacheChannel);
+    public static Channel getChannelIfPresent(String serviceName, Supplier<List<InstanceChannel>> instanceChannelSupplier) {
+        List<InstanceChannel> instanceChannelList = CHANNEL_MAP.get(serviceName);
+        if (Objects.isNull(instanceChannelList)) {
+            instanceChannelList = instanceChannelSupplier.get();
+            CHANNEL_MAP.put(serviceName, instanceChannelList);
         }
-        return cacheChannel;
+        InstanceChannel instanceChannel = new RandomLB().select(instanceChannelList);
+        return instanceChannel.getChannel();
     }
 
     public static void rmChannel(Channel channel) {
-        String serviceName = null;
-        for (Map.Entry<String, Channel> entry : CHANNEL_MAP.entrySet()) {
-            if (entry == channel) {
-                serviceName = entry.getKey();
+        for (Map.Entry<String, List<InstanceChannel>> entry : CHANNEL_MAP.entrySet()) {
+            if (entry.getValue().removeIf(instanceChannel -> instanceChannel.getChannel() == channel)) {
                 break;
             }
         }
-        CHANNEL_MAP.remove(serviceName);
     }
-
 
 }
