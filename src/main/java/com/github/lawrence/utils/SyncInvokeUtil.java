@@ -32,6 +32,7 @@ public final class SyncInvokeUtil {
      * 单位s
      */
     final static long WAIT_SECONDS = 60;
+    private final static long WAIT_NANOS = WAIT_SECONDS * 1000;
 
     /**
      * 发送同步请求
@@ -51,12 +52,12 @@ public final class SyncInvokeUtil {
                 }
             }*/
 
-            LockSupport.parkUntil(start + WAIT_SECONDS * 1000L);
+            LockSupport.parkUntil(start + WAIT_NANOS);
             //@see java.util.concurrent.locks.LockSupport.parkNanos(long) javadoc
             if (Thread.interrupted()) {
                 throw new RpcClientException("The client was interrupted abnormally");
             }
-            if (System.currentTimeMillis() >= start + WAIT_SECONDS * 1000L) {
+            if (System.currentTimeMillis() >= start + WAIT_NANOS) {
                 throw new RpcClientException("Server response timed out");
             }
             InnerThread innerThread = THREAD_MAP.remove(channel);
